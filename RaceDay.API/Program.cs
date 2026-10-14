@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Enable Swagger 
+// Enable Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -31,4 +31,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(); 
+app.Run();

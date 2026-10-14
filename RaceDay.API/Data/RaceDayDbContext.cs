@@ -20,7 +20,7 @@ namespace RaceDay.API.Data
 
         public DbSet<Result> Results { get; set; }
 
-        public DbSet<Route> Routes { get; set; }
+        public DbSet<RaceDay.API.Models.Route> Routes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,8 +41,8 @@ namespace RaceDay.API.Data
             modelBuilder.Entity<Result>()
                 .ToTable("Result");
 
-            modelBuilder.Entity<Route>()
+            modelBuilder.Entity<RaceDay.API.Models.Route>()
                 .ToTable("Route");
         }
     }
-} 
+}
