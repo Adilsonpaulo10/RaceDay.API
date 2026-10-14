@@ -45,4 +45,5 @@ namespace RaceDay.API.Data
                 .ToTable("Route");
         }
     }
-}
+
+} 
