@@ -1,46 +1,77 @@
-[HttpPost("login")]
-public IActionResult Login(LoginRequest request)
+using Microsoft.AspNetCore.Mvc;
+using RaceDay.API.Data;
+using RaceDay.API.DTOs;
+using RaceDay.API.Models;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace RaceDay.API.Controllers
 {
-    // Find the user by email
-    var user = _context.Users
-        .FirstOrDefault(u => u.Email == request.Email);
-
-    if (user == null)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
-        return Unauthorized(new
+        private readonly RaceDayDbContext _context;
+
+        public AccountController(RaceDayDbContext context)
         {
-            message = "Invalid email or password."
-        });
-    }
+            _context = context;
+        }
 
-    // Hash the password entered during login
-    using SHA256 sha256 = SHA256.Create();
-
-    byte[] passwordBytes =
-        Encoding.UTF8.GetBytes(request.Password);
-
-    byte[] hashBytes =
-        sha256.ComputeHash(passwordBytes);
-
-    string passwordHash =
-        Convert.ToHexString(hashBytes);
-
-    // Compare the password hash
-    if (user.PasswordHash != passwordHash)
-    {
-        return Unauthorized(new
+        [HttpPost("register")]
+        public IActionResult Register(RegisterRequest request)
         {
-            message = "Invalid email or password."
-        });
-    }
+            // Check if the email already exists
+            if (_context.Users.Any(u => u.Email == request.Email))
+            {
+                return BadRequest(new
+                {
+                    message = "Email is already registered."
+                });
+            }
 
-    return Ok(new
-    {
-        message = "Login successful.",
-        userID = user.UserID,
-        firstName = user.FirstName,
-        lastName = user.LastName,
-        email = user.Email,
-        role = user.Role
-    });
+            // Check that the role is valid
+            if (request.Role != "Participant" &&
+                request.Role != "Organiser")
+            {
+                return BadRequest(new
+                {
+                    message = "Role must be Participant or Organiser."
+                });
+            }
+
+            // Hash the password
+            using SHA256 sha256 = SHA256.Create();
+
+            byte[] passwordBytes =
+                Encoding.UTF8.GetBytes(request.Password);
+
+            byte[] hashBytes =
+                sha256.ComputeHash(passwordBytes);
+
+            string passwordHash =
+                Convert.ToHexString(hashBytes);
+
+            // Create the user
+            var user = new User
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                Role = request.Role
+            };
+
+            // Add user to database
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            return Ok(new
+            {
+                message = "User registered successfully.",
+                userID = user.UserID,
+                role = user.Role
+            });
+        }
+    }
 }
