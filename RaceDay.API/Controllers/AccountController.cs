@@ -1,48 +1,46 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RaceDay.API.Data;
-
-namespace RaceDay.API.Controllers
+[HttpPost("login")]
+public IActionResult Login(LoginRequest request)
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TestController : ControllerBase
+    // Find the user by email
+    var user = _context.Users
+        .FirstOrDefault(u => u.Email == request.Email);
+
+    if (user == null)
     {
-        private readonly RaceDayDbContext _context;
-
-        public TestController(RaceDayDbContext context)
+        return Unauthorized(new
         {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> TestDatabaseConnection()
-        {
-            try
-            {
-                bool connected = await _context.Database.CanConnectAsync();
-
-                if (connected)
-                {
-                    return Ok(new
-                    {
-                        message = "Successfully connected to the RaceDay database."
-                    });
-                }
-
-                return StatusCode(500, new
-                {
-                    message = "Could not connect to the RaceDay database."
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = "Database connection failed.",
-                    error = ex.Message
-                });
-            }
-        }
+            message = "Invalid email or password."
+        });
     }
+
+    // Hash the password entered during login
+    using SHA256 sha256 = SHA256.Create();
+
+    byte[] passwordBytes =
+        Encoding.UTF8.GetBytes(request.Password);
+
+    byte[] hashBytes =
+        sha256.ComputeHash(passwordBytes);
+
+    string passwordHash =
+        Convert.ToHexString(hashBytes);
+
+    // Compare the password hash
+    if (user.PasswordHash != passwordHash)
+    {
+        return Unauthorized(new
+        {
+            message = "Invalid email or password."
+        });
+    }
+
+    return Ok(new
+    {
+        message = "Login successful.",
+        userID = user.UserID,
+        firstName = user.FirstName,
+        lastName = user.LastName,
+        email = user.Email,
+        role = user.Role
+    });
 }
