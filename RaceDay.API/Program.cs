@@ -31,4 +31,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(); "y"
+app.Run(); "yes"
