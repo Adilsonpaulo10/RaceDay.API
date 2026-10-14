@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.26">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,6 +22,9 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+=======
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+>>>>>>> 634875f90f5e72fd4f8da0eedc47a9a8caf4ff51
   </ItemGroup>
 
 </Project>
