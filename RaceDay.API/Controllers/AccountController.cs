@@ -15,10 +15,14 @@ namespace RaceDay.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly RaceDayDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(RaceDayDbContext context)
+        public AccountController(
+    RaceDayDbContext context,
+    IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -69,10 +73,45 @@ namespace RaceDay.API.Controllers
             _context.Users.Add(user);
             _context.SaveChanges();
 
+            // Create claims for the logged-in user
+            var claims = new[]
+            {
+    new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+    new Claim(ClaimTypes.Name, user.Email),
+    new Claim(ClaimTypes.Role, user.Role)
+};
+
+            // Get JWT settings
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)
+            );
+
+            var credentials = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256
+            );
+
+            // Create the token
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: credentials
+            );
+
+            // Convert token to a string
+            var tokenString = new JwtSecurityTokenHandler()
+                .WriteToken(token);
+
             return Ok(new
             {
-                message = "User registered successfully.",
+                message = "Login successful.",
+                token = tokenString,
                 userID = user.UserID,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                email = user.Email,
                 role = user.Role
             });
         }
