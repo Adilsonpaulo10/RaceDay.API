@@ -57,4 +57,7 @@ Continuous Integration
 
 GitHub Actions runs automated checks on the repository.
 
+cl screenshot <img width="1357" height="675" alt="20 commits" src="https://github.com/user-attachments/assets/d8bcd8ad-1fc1-4841-b476-e5ff822ec09c" />
+
+
 cl screenshot <img width="1329" height="637" alt="20 commits" src="https://github.com/user-attachments/assets/e0bf2eab-7cf4-4bdd-9b3c-3a1c5e0db09e" />
